@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\InvoiceProduct;
 use App\Models\TransactionDetail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,9 +13,15 @@ class Product extends Model
 {
     use HasFactory;
     protected $guarded = [];
+    
     public function Category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function InvoiceProduct(): HasMany
+    {
+        return $this->hasMany(InvoiceProduct::class);
     }
     
 }
