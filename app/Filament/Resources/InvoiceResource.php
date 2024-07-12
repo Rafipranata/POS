@@ -26,7 +26,7 @@ class InvoiceResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
     protected static ?int $navigationSort = 3;
-    
+
     public static function updateTotals(Get $get, Set $set): void
     {
         $selectedProducts = collect($get('invoiceProducts'))->filter(fn($item) => !empty($item['product_id']) && !empty($item['quantity']));
@@ -68,12 +68,13 @@ class InvoiceResource extends Resource
                                     ->options(Product::query()->where('tersedia', 1)->pluck('name', 'id'))
                                     ->searchable()
                                     ->required()
+                                    ->live()
                                     ->reactive()
                                     ->afterStateUpdated(function ($state, callable $set, Get $get) {
 
                                         $product = Product::find($state);
                                         if ($product) {
-                                            $set('price', $product->price);
+                                            $set('price', number_format($product->price, 0, ',', '.'));
                                             $set('product_price', $product->price);
                                         } else {
                                             $set('price', null);
@@ -81,6 +82,7 @@ class InvoiceResource extends Resource
                                         }
                                         self::updateTotals($get, $set);
                                     })
+                                    
                                     ->columnSpan([
                                         'md' => 5,
                                     ]),
@@ -88,7 +90,7 @@ class InvoiceResource extends Resource
                                     ->numeric()
                                     ->live()
                                     ->reactive()
-                                    ->afterStateUpdated(function (callable $set, Get $get) {
+                                    ->afterStateUpdated(function ($state, callable $set, Get $get) {
                                         self::updateTotals($get, $set);
                                     })
                                     ->minValue(1)
@@ -123,6 +125,8 @@ class InvoiceResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('total_amount')
                             ->prefix('IDR')
+                            ->live()
+                            ->reactive()
                             ->afterStateHydrated(function (Get $get, Set $set) {
                                 self::updateTotals($get, $set);
                             })

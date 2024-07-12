@@ -2,15 +2,15 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
+use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
+use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use App\Filament\Resources\ProductResource\Pages;
+use Filament\Tables\Table;
 
 class ProductResource extends Resource
 {
@@ -47,7 +47,9 @@ class ProductResource extends Resource
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('price')
-                    ->money('IDR')
+                    ->formatStateUsing(function ($state) {
+                        return 'IDR ' . number_format($state, 0, ',', '.');
+                    })
                     ->sortable(),
                 IconColumn::make('tersedia')
                     ->boolean(),
