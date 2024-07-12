@@ -12,6 +12,8 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -24,6 +26,18 @@ class InvoiceResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
 
     protected static ?int $navigationSort = 3;
+    
+    public static function updateTotals(Get $get, Set $set): void
+    {
+        $selectedProducts = collect($get('invoiceProducts'))->filter(fn($item) => !empty($item['product_id']) && !empty($item['quantity']));
+        $prices = Product::find($selectedProducts->pluck('product_id'))->pluck('price', 'id');
+
+        $total = $selectedProducts->reduce(function ($total, $product) use ($prices) {
+            return $total + ($prices[$product['product_id']] * $product['quantity']);
+        }, 0);
+
+        $set('total_amount', $total);
+    }
 
     public static function form(Form $form): Form
     {
@@ -46,7 +60,7 @@ class InvoiceResource extends Resource
                 Card::make()
                     ->schema([
                         Placeholder::make('Daftar Menu'),
-                        Repeater::make('InvoiceProduct')
+                        Repeater::make('InvoiceProducts')
                             ->relationship()
                             ->schema([
                                 Forms\Components\Select::make('product_id')
@@ -55,7 +69,8 @@ class InvoiceResource extends Resource
                                     ->searchable()
                                     ->required()
                                     ->reactive()
-                                    ->afterStateUpdated(function ($state, callable $set) {
+                                    ->afterStateUpdated(function ($state, callable $set, Get $get) {
+
                                         $product = Product::find($state);
                                         if ($product) {
                                             $set('price', $product->price);
@@ -64,12 +79,19 @@ class InvoiceResource extends Resource
                                             $set('price', null);
                                             $set('product_price', null);
                                         }
+                                        self::updateTotals($get, $set);
                                     })
                                     ->columnSpan([
                                         'md' => 5,
                                     ]),
                                 Forms\Components\TextInput::make('quantity')
                                     ->numeric()
+                                    ->live()
+                                    ->reactive()
+                                    ->afterStateUpdated(function (callable $set, Get $get) {
+                                        self::updateTotals($get, $set);
+                                    })
+                                    ->minValue(1)
                                     ->default(1)
                                     ->columnSpan([
                                         'md' => 3,
@@ -89,15 +111,24 @@ class InvoiceResource extends Resource
                             ->defaultItems(1)
                             ->columns(12)
                             ->columnSpan('full')
-                            ->addActionLabel('Add to Menu'),
+
+                            ->addActionLabel('Add to Menu')
+                            ->afterStateHydrated(function (Get $get, Set $set) {
+                                self::updateTotals($get, $set);
+                            }),
                     ])
                     ->columnSpan('full'),
 
-                    Card::make()
-                        ->schema([
-                            Forms\Components\TextInput::make('total_amount'),
-                        ])
-                        ->columns(1),
+                Card::make()
+                    ->schema([
+                        Forms\Components\TextInput::make('total_amount')
+                            ->prefix('IDR')
+                            ->afterStateHydrated(function (Get $get, Set $set) {
+                                self::updateTotals($get, $set);
+                            })
+                            ->readOnly(),
+                    ])
+                    ->columns(1),
             ]);
     }
 

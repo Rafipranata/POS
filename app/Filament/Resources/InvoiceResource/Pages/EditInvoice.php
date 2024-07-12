@@ -21,8 +21,8 @@ class EditInvoice extends EditRecord
     {
         $data = $this->record->toArray();
 
-        foreach ($this->record->invoiceProduct as $index => $invoiceProduct) {
-            $data['InvoiceProduct'][$index] = $invoiceProduct->toArray();
+        foreach ($this->record->invoiceProducts as $index => $invoiceProducts) {
+            $data['InvoiceProduct'][$index] = $invoiceProducts->toArray();
         }
 
         $this->form->fill($data);
