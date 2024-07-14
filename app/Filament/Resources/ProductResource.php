@@ -48,7 +48,7 @@ class ProductResource extends Resource
                     ->sortable(),
                 TextColumn::make('price')
                     ->formatStateUsing(function ($state) {
-                        return 'IDR ' . number_format($state, 0, ',', '.');
+                        return 'Rp ' . number_format($state, 0, ',', '.');
                     })
                     ->sortable(),
                 IconColumn::make('tersedia')

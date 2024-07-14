@@ -82,7 +82,7 @@ class InvoiceResource extends Resource
                                         }
                                         self::updateTotals($get, $set);
                                     })
-                                    
+
                                     ->columnSpan([
                                         'md' => 5,
                                     ]),
@@ -139,12 +139,16 @@ class InvoiceResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('customer_name')
-                    ->label('Nama Pelanggan'),
+                    ->label('Nama Pelanggan')
+                    ->searchable(),
                 TextColumn::make('customer_email')
                     ->label('Email Pelanggan'),
-
+                TextColumn::make('total_price')
+                    ->label('Total Harga')
+                    ->formatStateUsing(fn($state, $record) => 'Rp ' . number_format($record->total_price, 0, ',', '.')),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

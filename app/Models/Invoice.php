@@ -17,4 +17,11 @@ class Invoice extends Model
     {
         return $this->hasMany(InvoiceProduct::class);
     }
+
+    public function getTotalPriceAttribute()
+    {
+        return $this->invoiceProducts->sum(function ($product) {
+            return $product->product_price * $product->quantity;
+        });
+    }
 }
