@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->integer('price');
+            $table->text('product_image');
             $table->boolean('tersedia')->default(true);;
             $table->timestamps();
         });

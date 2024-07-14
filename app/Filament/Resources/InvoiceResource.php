@@ -51,9 +51,10 @@ class InvoiceResource extends Resource
                             ->label('Nama Pelanggan')
                             ->required()
                             ->maxLength(255),
-                        TextInput::make('customer_email')
-                            ->label('Email Pelanggan')
-                            ->required(),
+                        TextInput::make('customer_telp')
+                            ->label('No Telp')
+                            ->prefix('+62')
+                            ,
                     ])
                     ->columns(2),
 
@@ -145,8 +146,8 @@ class InvoiceResource extends Resource
                 TextColumn::make('customer_name')
                     ->label('Nama Pelanggan')
                     ->searchable(),
-                TextColumn::make('customer_email')
-                    ->label('Email Pelanggan'),
+                TextColumn::make('customer_telp')
+                    ->label('No Telp'),
                 TextColumn::make('total_price')
                     ->label('Total Harga')
                     ->formatStateUsing(fn($state, $record) => 'Rp ' . number_format($record->total_price, 0, ',', '.')),

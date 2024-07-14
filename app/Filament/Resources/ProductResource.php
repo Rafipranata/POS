@@ -3,13 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
+use App\Models\Category;
 use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class ProductResource extends Resource
@@ -30,10 +29,13 @@ class ProductResource extends Resource
                     ->required(),
                 Forms\Components\TextInput::make('price')
                     ->required()
-                    ->prefix('IDR')
-                    ->numeric(),
+                    ->numeric()
+                    ->prefix('$'),
                 Forms\Components\Toggle::make('tersedia')
                     ->required(),
+                Forms\Components\FileUpload::make('product_image')
+                    ->required()
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -41,23 +43,26 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')
+                Tables\Columns\ImageColumn::make('product_image')
+                    ->label('Foto Product'),
+                Tables\Columns\TextColumn::make('name')
+                    ->label('Nama')
+                    ->description(fn($record): string => $record->category->name)
                     ->searchable(),
-                TextColumn::make('category.name')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('price')
+                
+                Tables\Columns\TextColumn::make('price')
+                    ->label('Harga')
                     ->formatStateUsing(function ($state) {
-                        return 'Rp ' . number_format($state, 0, ',', '.');
+                        return 'Rp ' . number_format($state, 0, ',', ',');
                     })
                     ->sortable(),
-                IconColumn::make('tersedia')
+                Tables\Columns\IconColumn::make('tersedia')
                     ->boolean(),
-                TextColumn::make('created_at')
+                Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
+                Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

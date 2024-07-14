@@ -110,8 +110,14 @@
                 <td>Ordered Date:</td>
                 <td>{{$invoice->created_at}}</td>
 
-                <td>Email:</td>
-                <td>{{ $invoice->customer_email }}</td>
+                <td>Telepon:</td>
+                @if ($invoice->customer_telp != null)
+                <td>{{ $invoice->customer_telp }}</td>
+                @else
+                    
+                <td>-</td>
+                    
+                @endif
             </tr>
 
         </tbody>
