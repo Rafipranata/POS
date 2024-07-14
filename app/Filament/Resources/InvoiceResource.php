@@ -16,6 +16,7 @@ use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -162,6 +163,12 @@ class InvoiceResource extends Resource
                 //
             ])
             ->actions([
+                Action::make('pdf')
+                    ->label('PDF')
+                    ->color('success')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->url(fn($record): string => route('pdf', $record->id))
+                    ->openUrlInNewTab(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
